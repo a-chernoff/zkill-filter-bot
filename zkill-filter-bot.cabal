@@ -1,0 +1,95 @@
+name:                zkill-filter-bot
+version:             0.1.0.0
+-- synopsis:
+-- description:
+homepage:            https://github.com/githubuser/zkill-filter-bot#readme
+license:             BSD3
+license-file:        LICENSE
+author:              Author name here
+maintainer:          example@example.com
+copyright:           2017 Author name here
+category:            Web
+build-type:          Simple
+extra-source-files:  README.md
+cabal-version:       >=1.10
+
+library
+  hs-source-dirs:     src
+  exposed-modules:    Lib
+                      Data.Zkill.Alliance
+                      Data.Zkill.Attacker
+                      Data.Zkill.Character
+                      Data.Zkill.Corporation
+                      Data.Zkill.Icon
+                      Data.Zkill.Item
+                      Data.Zkill.ItemType
+                      Data.Zkill.Killmail
+                      Data.Zkill.Package
+                      Data.Zkill.Position
+                      Data.Zkill.ShipType
+                      Data.Zkill.SolarSystem
+                      Data.Zkill.Victim
+                      Data.Zkill.War
+                      Data.Zkill.WeaponType
+                      Data.Zkill.Zkillboard
+
+  build-depends:      base >= 4.7 && < 5
+                    , discord-hs
+                    , pipes
+                    , bytestring
+                    , aeson
+                    , vector
+                    , text
+                    , conduit
+                    , conduit-extra
+                    , http-types
+                    , http-client
+                    , http-client-tls
+                    , http-conduit
+  default-language:   Haskell2010
+
+executable zkill-filter-bot-exe
+  hs-source-dirs:     app
+  main-is:            Main.hs
+  ghc-options:        -threaded -rtsopts -with-rtsopts=-N
+  build-depends:      base
+                    , zkill-filter-bot
+                    , discord-hs
+                    , pipes
+                    , bytestring
+                    , aeson
+                    , vector
+                    , text
+                    , conduit
+                    , conduit-extra
+                    , http-types
+                    , http-client
+                    , http-client-tls
+                    , http-conduit
+  default-language:    Haskell2010
+
+test-suite zkill-filter-bot-test
+  type:               exitcode-stdio-1.0
+  hs-source-dirs:     test
+  main-is:            Spec.hs
+  build-depends:      base
+                    , zkill-filter-bot
+                    , discord-hs
+                    , pipes
+                    , bytestring
+                    , aeson
+                    , vector
+                    , text
+                    , HUnit
+                    , conduit
+                    , conduit-extra
+                    , http-types
+                    , http-client
+                    , http-client-tls
+                    , http-conduit
+  ghc-options:         -threaded -rtsopts -with-rtsopts=-N
+  default-language:    Haskell2010
+
+source-repository head
+  type:     git
+  location: https://github.com/githubuser/zkill-filter-bot
