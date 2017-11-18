@@ -93,4 +93,4 @@ test-suite zkill-filter-bot-test
 
 source-repository head
   type:     git
-  location: https://github.com/githubuser/zkill-filter-bot
+  location: https://github.com/a-chernoff/zkill-filter-bot
