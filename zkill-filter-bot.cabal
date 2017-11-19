@@ -6,8 +6,8 @@ homepage:            https://github.com/githubuser/zkill-filter-bot#readme
 license:             BSD3
 license-file:        LICENSE
 author:              Author name here
-maintainer:          example@example.com
-copyright:           2017 Author name here
+maintainer:          chernoff.alex1@gmail.com
+copyright:           2017 Alexander Chernoff
 category:            Web
 build-type:          Simple
 extra-source-files:  README.md
@@ -16,22 +16,15 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:     src
   exposed-modules:    Lib
+                      Filter
+                      FilterParser
                       Data.Zkill.ApiObject
-                      Data.Zkill.Alliance
                       Data.Zkill.Attacker
-                      Data.Zkill.Character
-                      Data.Zkill.Corporation
-                      Data.Zkill.Icon
                       Data.Zkill.Item
-                      Data.Zkill.ItemType
                       Data.Zkill.Killmail
                       Data.Zkill.Package
                       Data.Zkill.Position
-                      Data.Zkill.ShipType
-                      Data.Zkill.SolarSystem
                       Data.Zkill.Victim
-                      Data.Zkill.War
-                      Data.Zkill.WeaponType
                       Data.Zkill.Zkillboard
 
   build-depends:      base >= 4.7 && < 5

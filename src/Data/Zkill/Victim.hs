@@ -11,7 +11,7 @@ import Data.Zkill.Position
 data Victim = Victim {
       damage_taken :: Int
     , ship_type_id :: Int
-    , character_id :: Int
+    , character_id :: Maybe Int
     , corporation_id :: Maybe Int
     , alliance_id :: Maybe Int
     , items :: [Item]

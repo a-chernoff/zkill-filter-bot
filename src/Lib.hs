@@ -17,6 +17,7 @@ import Data.IORef
 import Data.Aeson (eitherDecode)
 import Network.HTTP.Simple
 
+import Filter
 import qualified Data.Zkill.ApiObject as ApiObject
 import qualified Data.Zkill.Package as Package
 import qualified Data.Zkill.Zkillboard as Zkillboard
@@ -39,25 +40,30 @@ bot token = do
             -- liftIO . putStrLn $ (show cid)
             -- chanMatch <- liftIO $ matchChannel cidRef messageChannel
             when ("!zk" `isPrefixOf` messageContent
-                && (not . userIsBot $ messageAuthor)) $
-                forever (getKillmailDiscord msg)
+                && (not . userIsBot $ messageAuthor)) $ do
+                    liftIO . putStrLn $ "Getting killmails"
+                    forever (getKillmailDiscord msg)
 
 getKillmailJSON :: IO (Either String ApiObject.ApiObject)
 getKillmailJSON = do
     request <- parseRequest "https://redisq.zkillboard.com/listen.php"
     response <- httpLBS request
-    LBS.writeFile "debug.txt" (getResponseBody response)
-    return (eitherDecode (getResponseBody response))
+    case eitherDecode (getResponseBody response) of
+        Left err -> do
+            LBS.writeFile "debug.txt" (getResponseBody response)
+            return (Left err)
+        json -> return json
 
 getKillmailDiscord :: Message -> Effect DiscordM ()
 getKillmailDiscord msg = do
     ekm <- liftIO getKillmailJSON
     case ekm of 
         Left err -> error err
-        Right km -> do
-            liftIO . putStrLn . unpack $ (Zkillboard.href . Package.zkb . ApiObject.package) km
-            reply msg ((Zkillboard.href . Package.zkb . ApiObject.package) km)
+        Right km -> when (afilter km) $ reply msg ((Zkillboard.href . Package.zkb . ApiObject.package) km)
 
+-- amamake
+afilter :: Filter
+afilter = solarSystemFilter 30002537
 -- matchChannel :: IORef (Maybe Channel) -> Snowflake -> IO Bool
 -- matchChannel chanRef chanId = do
 --     chan <- readIORef chanRef
