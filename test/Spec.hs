@@ -2,7 +2,7 @@
 
 import Test.HUnit
 
-import Data.Text
+-- import Data.Text
 import Data.Aeson
 -- import Data.ByteString.Lazy as BS
 
@@ -14,23 +14,25 @@ import qualified Data.Zkill.Icon as Icon
 import qualified Data.Zkill.Item as Item
 import qualified Data.Zkill.ItemType as ItemType
 import qualified Data.Zkill.Killmail as Killmail
-import qualified Data.Zkill.Package as Package
+-- import qualified Data.Zkill.Package as Package
 import qualified Data.Zkill.Position as Position
 import qualified Data.Zkill.ShipType as ShipType
 import qualified Data.Zkill.SolarSystem as SolarSystem
 import qualified Data.Zkill.Victim as Victim
 import qualified Data.Zkill.War as War
 import qualified Data.Zkill.WeaponType as WeaponType
-import qualified Data.Zkill.Zkillboard as Zkillboard
+-- import qualified Data.Zkill.Zkillboard as Zkillboard
 
 main :: IO ()
 main = runTestTT tests >> return ()
 
+tests :: Test
 tests = TestList [
       TestLabel "Alliance Parser" testAllianceParser
     , TestLabel "Killmail Parser" testKillmailParser
     ]
 
+testAllianceParser :: Test
 testAllianceParser = TestCase (assertEqual "for eitherDecode {alliance}, "
     (Right Alliance.Alliance {
           Alliance.id_str = "99005338"
@@ -43,6 +45,7 @@ testAllianceParser = TestCase (assertEqual "for eitherDecode {alliance}, "
         })
     (eitherDecode "{\"id_str\":\"99005338\",\"href\":\"https://crest-tq.eveonline.com/alliances/99005338/\",\"id\":99005338,\"name\":\"Pandemic Horde\",\"icon\":{\"href\":\"http://imageserver.eveonline.com/Alliance/99005338_128.png\"}}"))
 
+testKillmailParser :: Test
 testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "    
     (Right Killmail.Killmail {
           Killmail.solarSystem = SolarSystem.SolarSystem {
@@ -55,7 +58,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
         , Killmail.killTime = "2017.09.22 21:48:32"
         , Killmail.attackers = [
             Attacker.Attacker {
-                  Attacker.alliance = Alliance.Alliance {
+                  Attacker.alliance = Just Alliance.Alliance {
                       Alliance.id_str = "99005338"
                     , Alliance.href = "https://crest-tq.eveonline.com/alliances/99005338/"
                     , Alliance.id = 99005338
@@ -64,7 +67,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
                         Icon.href = "http://imageserver.eveonline.com/Alliance/99005338_128.png"
                         }
                     }
-                , Attacker.shipType = ShipType.ShipType {
+                , Attacker.shipType = Just ShipType.ShipType {
                       ShipType.id_str = "621"
                     , ShipType.href = "https://crest-tq.eveonline.com/inventory/types/621/"
                     , ShipType.id = 621
@@ -73,7 +76,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
                         Icon.href = "http://imageserver.eveonline.com/Type/621_128.png"
                         }
                     }
-                , Attacker.corporation = Corporation.Corporation {
+                , Attacker.corporation = Just Corporation.Corporation {
                       Corporation.id_str = "98388312"
                     , Corporation.href = "https://crest-tq.eveonline.com/corporations/98388312/"
                     , Corporation.id = 98388312
@@ -82,7 +85,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
                         Icon.href = "http://imageserver.eveonline.com/Corporation/98388312_128.png"
                         }
                     }
-                , Attacker.character = Character.Character {
+                , Attacker.character = Just Character.Character {
                       Character.id_str = "94834545"
                     , Character.href = "https://crest-tq.eveonline.com/characters/94834545/"
                     , Character.id = 94834545
@@ -92,7 +95,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
                         }
                     }
                 , Attacker.damageDone_str = "2001"
-                , Attacker.weaponType = WeaponType.WeaponType {
+                , Attacker.weaponType = Just WeaponType.WeaponType {
                       WeaponType.id_str = "27387"
                     , WeaponType.href = "https://crest-tq.eveonline.com/inventory/types/27387/"
                     , WeaponType.id = 27387
@@ -108,7 +111,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
             ]
         , Killmail.attackerCount = 1
         , Killmail.victim = Victim.Victim {
-              Victim.alliance = Alliance.Alliance {
+              Victim.alliance = Just Alliance.Alliance {
                   Alliance.id_str = "99002938"
                 , Alliance.href = "https://crest-tq.eveonline.com/alliances/99002938/"
                 , Alliance.id = 99002938
@@ -138,7 +141,7 @@ testKillmailParser = TestCase (assertEqual "for eitherDecode {killmail}, "
                     }
                 ]
             , Victim.damageTaken_str = "2001"
-            , Victim.character = Character.Character {
+            , Victim.character = Just Character.Character {
                   Character.id_str = "95290141"
                 , Character.href = "https://crest-tq.eveonline.com/characters/95290141/"
                 , Character.id = 95290141

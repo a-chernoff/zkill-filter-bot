@@ -3,7 +3,6 @@ module Lib
     ( bot
     , getKillmailJSON
     , getKillmailJSON2
-    , test
     ) where
 
 import Control.Concurrent (threadDelay)
@@ -16,7 +15,6 @@ import Control.Monad.IO.Class (liftIO)
 
 import Data.Aeson                  (parseJSON, eitherDecode)
 import Network.HTTP.Simple
--- import Network.HTTP.Client.TLS     (tlsManagerSettings)
 
 import qualified Data.Zkill.ApiObject as ApiObject
 import qualified Data.Zkill.Package as Package
@@ -28,8 +26,8 @@ sendToChannel chan cont = fetch' $ CreateMessage chan cont Nothing
 reply :: Message -> Text -> Effect DiscordM ()
 reply Message{messageChannel=chan} cont = fetch' $ CreateMessage chan (append cont $ pack (show chan)) Nothing
 
-bot :: IO ()
-bot = runBot (Bot "") $ do
+bot :: String -> IO ()
+bot clientSecret = runBot (Bot clientSecret) $ do
     with ReadyEvent $ \(Init v u _ _ _) ->
         liftIO . putStrLn $ "Connected to gateway v" ++ show v ++ " as user " ++ show u
 
@@ -61,9 +59,4 @@ getKillmailDiscord = do
         Right km -> sendToChannel 0
             ((Zkillboard.href . Package.zkb . ApiObject.package) km)
 
-test :: IO ()
-test = sequence_ $ replicate 100 (
-        getKillmailJSON2
-    >>= either putStrLn (const (putStrLn "OK"))
-    >>  threadDelay 10000000
-    )
+            
