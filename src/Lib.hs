@@ -2,61 +2,66 @@
 module Lib
     ( bot
     , getKillmailJSON
-    , getKillmailJSON2
     ) where
 
-import Control.Concurrent (threadDelay)
-import Control.Monad (forever, sequence_)
+-- import Control.Concurrent (threadDelay)
+import Control.Monad (forever)
 import Data.Text hiding (head, replicate)
 import qualified Data.ByteString.Lazy as LBS
 import Pipes
 import Network.Discord
 import Control.Monad.IO.Class (liftIO)
 
-import Data.Aeson                  (parseJSON, eitherDecode)
+import qualified Data.List as L
+import Data.IORef
+import Data.Aeson (eitherDecode)
 import Network.HTTP.Simple
 
 import qualified Data.Zkill.ApiObject as ApiObject
 import qualified Data.Zkill.Package as Package
 import qualified Data.Zkill.Zkillboard as Zkillboard
 
-sendToChannel :: Snowflake -> Text -> Effect DiscordM ()
-sendToChannel chan cont = fetch' $ CreateMessage chan cont Nothing
-
 reply :: Message -> Text -> Effect DiscordM ()
-reply Message{messageChannel=chan} cont = fetch' $ CreateMessage chan (append cont $ pack (show chan)) Nothing
+reply Message{messageChannel=chan} cont = fetch' $ CreateMessage chan cont Nothing
 
 bot :: String -> IO ()
-bot clientSecret = runBot (Bot clientSecret) $ do
-    with ReadyEvent $ \(Init v u _ _ _) ->
-        liftIO . putStrLn $ "Connected to gateway v" ++ show v ++ " as user " ++ show u
+bot token = do
+    cidRef <- newIORef Nothing
+    runBot (Bot token) $ do
+        with ReadyEvent $ \(Init v u chans _ _) -> do
+            liftIO . putStrLn $ "Connected to gateway v" ++ show v ++ " as user " ++ show u
+            liftIO . writeIORef cidRef $ L.find (\a -> case a of
+                Text _ _ name _ _ _ _ -> name == "Zkill-Bot"
+                _ -> False) chans
 
-    with MessageCreateEvent $ \msg@Message{..} -> do
-        when ("Ping" `isPrefixOf` messageContent && (not . userIsBot $ messageAuthor)) $
-            getKillmailDiscord
+        with MessageCreateEvent $ \msg@Message{..} -> do
+            -- cid <- liftIO (readIORef cidRef)
+            -- liftIO . putStrLn $ (show cid)
+            -- chanMatch <- liftIO $ matchChannel cidRef messageChannel
+            when ("!zk" `isPrefixOf` messageContent
+                && (not . userIsBot $ messageAuthor)) $
+                forever (getKillmailDiscord msg)
 
-getKillmailJSON :: IO (ApiObject.ApiObject)
+getKillmailJSON :: IO (Either String ApiObject.ApiObject)
 getKillmailJSON = do
     request <- parseRequest "https://redisq.zkillboard.com/listen.php"
-    -- response <- httpJSON request
-    response <- httpJSONEither request
-    -- return (getResponseBody response)
-    case getResponseBody response of
-        Left err -> error (show err)
-        Right json -> return json
-
-getKillmailJSON2 :: IO (Either String ApiObject.ApiObject)
-getKillmailJSON2 = do
-    request <- parseRequest "https://redisq.zkillboard.com/listen.php"
     response <- httpLBS request
+    LBS.writeFile "debug.txt" (getResponseBody response)
     return (eitherDecode (getResponseBody response))
 
-getKillmailDiscord :: Effect DiscordM ()
-getKillmailDiscord = do
-    ekm <- liftIO (getKillmailJSON2)
+getKillmailDiscord :: Message -> Effect DiscordM ()
+getKillmailDiscord msg = do
+    ekm <- liftIO getKillmailJSON
     case ekm of 
         Left err -> error err
-        Right km -> sendToChannel 0
-            ((Zkillboard.href . Package.zkb . ApiObject.package) km)
+        Right km -> do
+            liftIO . putStrLn . unpack $ (Zkillboard.href . Package.zkb . ApiObject.package) km
+            reply msg ((Zkillboard.href . Package.zkb . ApiObject.package) km)
 
-            
+-- matchChannel :: IORef (Maybe Channel) -> Snowflake -> IO Bool
+-- matchChannel chanRef chanId = do
+--     chan <- readIORef chanRef
+--     return $ matchChannelMaybe chan chanId
+
+-- matchChannelMaybe :: Maybe Channel -> Snowflake -> Bool
+-- matchChannelMaybe chan chanId = maybe False (\c -> chanId == channelId c) chan

@@ -1,38 +1,20 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 
-module Data.Zkill.Victim 
-    ( Victim (
-          Victim
-        , alliance
-        , damageTaken
-        , items
-        , damageTaken_str
-        , character
-        , shipType
-        , corporation
-        , position
-        )
-    ) where
+module Data.Zkill.Victim where
 
 import GHC.Generics
 import Data.Aeson
-import Data.Text
 
-import Data.Zkill.Alliance
-import Data.Zkill.Character
 import Data.Zkill.Item
-import Data.Zkill.ShipType
-import Data.Zkill.Corporation
 import Data.Zkill.Position
 
 data Victim = Victim {
-      alliance :: Maybe Alliance
-    , damageTaken :: Int
+      damage_taken :: Int
+    , ship_type_id :: Int
+    , character_id :: Int
+    , corporation_id :: Maybe Int
+    , alliance_id :: Maybe Int
     , items :: [Item]
-    , damageTaken_str :: Text
-    , character :: Maybe Character
-    , shipType :: ShipType
-    , corporation :: Corporation
     , position :: Position
     } deriving (Generic, Show, Eq)
 

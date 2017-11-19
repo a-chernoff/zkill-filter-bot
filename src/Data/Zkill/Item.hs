@@ -1,32 +1,16 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 
-module Data.Zkill.Item
-    ( Item (
-          Item
-        , singleton
-        , itemType
-        , quantityDropped_str
-        , flag
-        , singleton_str
-        , quantityDropped
-        , flag_str
-        )
-    ) where
+module Data.Zkill.Item where
 
 import GHC.Generics
 import Data.Aeson
-import Data.Text
-
-import Data.Zkill.ItemType
 
 data Item = Item {
       singleton :: Int
-    , itemType :: ItemType
-    , quantityDropped_str :: Maybe Text
+    , item_type_id :: Int
     , flag :: Int
-    , singleton_str :: Text
-    , quantityDropped :: Maybe Int
-    , flag_str :: Text
+    , quantity_dropped :: Maybe Int
+    , quantity_destroyed :: Maybe Int
     } deriving (Generic, Show, Eq)
 
 instance ToJSON Item where

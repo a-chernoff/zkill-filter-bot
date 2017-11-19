@@ -1,40 +1,19 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 
-module Data.Zkill.Attacker 
-    ( Attacker (
-          Attacker
-        , alliance
-        , shipType
-        , corporation
-        , character
-        , damageDone_str
-        , weaponType
-        , finalBlow
-        , securityStatus
-        , damageDone
-        )
-    ) where
+module Data.Zkill.Attacker where
 
 import GHC.Generics
 import Data.Aeson
-import Data.Text
-
-import Data.Zkill.Alliance
-import Data.Zkill.Character
-import Data.Zkill.ShipType
-import Data.Zkill.Corporation
-import Data.Zkill.WeaponType
 
 data Attacker = Attacker {
-      alliance :: Maybe Alliance
-    , shipType :: Maybe ShipType
-    , corporation :: Maybe Corporation
-    , character :: Maybe Character
-    , damageDone_str :: Text
-    , weaponType :: Maybe WeaponType
-    , finalBlow :: Bool
-    , securityStatus :: Float
-    , damageDone :: Int
+      security_status :: Float
+    , final_blow :: Bool
+    , damage_done :: Int
+    , character_id :: Maybe Int
+    , corporation_id :: Maybe Int
+    , alliance_id :: Maybe Int
+    , weapon_type_id :: Maybe Int
+    , ship_type_id :: Maybe Int
     } deriving (Generic, Show, Eq)
 
 instance ToJSON Attacker where

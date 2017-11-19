@@ -1,17 +1,6 @@
 {-# LANGUAGE OverloadedStrings, DeriveGeneric #-}
 
-module Data.Zkill.Zkillboard 
-    ( Zkillboard (
-          Zkillboard
-        , locationID
-        , hash
-        , fittedValue
-        , totalValue
-        , points
-        , npc
-        , href
-        )
-    ) where
+module Data.Zkill.Zkillboard where
 
 import GHC.Generics
 import Data.Aeson
@@ -24,6 +13,8 @@ data Zkillboard = Zkillboard {
     , totalValue :: Float
     , points :: Int
     , npc :: Bool
+    , solo :: Bool
+    , awox :: Bool
     , href :: Text
     } deriving (Generic, Show, Eq)
 
