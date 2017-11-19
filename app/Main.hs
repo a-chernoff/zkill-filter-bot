@@ -11,7 +11,7 @@ main = do
     cfgFile <- readFile "config.ini"
     case parseIniFile (pack cfgFile) iniParser of
         Left err -> putStrLn err
-        Right cfg -> bot (unpack cfg)
+        Right cfg -> putStrLn (unpack cfg) >> bot (unpack cfg)
 
 iniParser :: IniParser Text
-iniParser = section "BOT" (field "clientSecret")
+iniParser = section "BOT" (field "token")
