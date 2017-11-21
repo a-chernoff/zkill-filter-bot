@@ -13,7 +13,7 @@ import Data.Aeson
 import Data.Zkill.Package
 
 data ApiObject = ApiObject {
-    package :: Package
+    package :: Maybe Package
     } deriving (Generic, Show, Eq)
 
 instance ToJSON ApiObject where

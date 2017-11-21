@@ -6,6 +6,7 @@ module Lib
 
 -- import Control.Concurrent (threadDelay)
 import Control.Monad (forever)
+import qualified Data.Text as T
 import Data.Text hiding (head, replicate)
 import qualified Data.ByteString.Lazy as LBS
 import Pipes
@@ -16,8 +17,10 @@ import qualified Data.List as L
 import Data.IORef
 import Data.Aeson (eitherDecode)
 import Network.HTTP.Simple
+import Text.Megaparsec (parse, parseErrorPretty)
 
 import Filter
+import FilterParser (filterParser, FilterStatement(Include, Exclude))
 import qualified Data.Zkill.ApiObject as ApiObject
 import qualified Data.Zkill.Package as Package
 import qualified Data.Zkill.Zkillboard as Zkillboard
@@ -40,9 +43,16 @@ bot token = do
             -- liftIO . putStrLn $ (show cid)
             -- chanMatch <- liftIO $ matchChannel cidRef messageChannel
             when ("!zk" `isPrefixOf` messageContent
-                && (not . userIsBot $ messageAuthor)) $ do
-                    liftIO . putStrLn $ "Getting killmails"
-                    forever (getKillmailDiscord msg)
+                && (not . userIsBot $ messageAuthor)) $ case parse filterParser "goofball" (T.drop 3 messageContent) of
+                    Left err -> do
+                        liftIO . putStrLn $ parseErrorPretty err
+                        reply msg ("Parse error: " `append` (pack $ parseErrorPretty err))
+                    Right (Include parsedFilter) -> do
+                        liftIO . putStrLn $ "Getting killmails\n" ++ (unpack messageContent)
+                        forever (getKillmailDiscord parsedFilter msg)
+                    Right (Exclude _) -> do
+                        liftIO . putStrLn $ "Exclude not supported yet\n" ++ (unpack messageContent)
+                        reply msg "Exclude not supported yet"
 
 getKillmailJSON :: IO (Either String ApiObject.ApiObject)
 getKillmailJSON = do
@@ -54,16 +64,16 @@ getKillmailJSON = do
             return (Left err)
         json -> return json
 
-getKillmailDiscord :: Message -> Effect DiscordM ()
-getKillmailDiscord msg = do
+getKillmailDiscord :: Filter -> Message -> Effect DiscordM ()
+getKillmailDiscord f msg = do
     ekm <- liftIO getKillmailJSON
-    case ekm of 
+    case ekm of
         Left err -> error err
-        Right km -> when (afilter km) $ reply msg ((Zkillboard.href . Package.zkb . ApiObject.package) km)
+        Right km -> case ApiObject.package km of
+            Nothing -> liftIO . putStrLn $ "No Package in ApiObject"
+            Just pkg -> when (runFilter f $ pkg) $
+                reply msg ((Zkillboard.href . Package.zkb) pkg)
 
--- amamake
-afilter :: Filter
-afilter = solarSystemFilter 30002537
 -- matchChannel :: IORef (Maybe Channel) -> Snowflake -> IO Bool
 -- matchChannel chanRef chanId = do
 --     chan <- readIORef chanRef

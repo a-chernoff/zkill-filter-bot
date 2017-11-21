@@ -11,7 +11,6 @@ module Data.Zkill.Position
 
 import GHC.Generics
 import Data.Aeson
-import Data.Text
 
 data Position = Position {
       y :: Double
