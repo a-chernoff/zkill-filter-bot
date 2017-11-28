@@ -16,6 +16,7 @@ cabal-version:       >=1.10
 library
   hs-source-dirs:     src
   exposed-modules:    Lib
+                      Esi
                       Filter
                       FilterParser
                       Data.Zkill.ApiObject
@@ -41,6 +42,9 @@ library
                     , http-client-tls
                     , http-conduit
                     , megaparsec
+                    , time
+                    , mtl
+                    , unordered-containers
   default-language:   Haskell2010
 
 executable zkill-filter-bot-exe
